@@ -1,0 +1,52 @@
+# Compiled output
+/dist
+/build
+/node_modules
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+
+# Tests
+/coverage
+*/coverage
+/.nyc_output
+
+# Uploaded files
+/uploads
+
+# IDEs and editors
+.vscode/
+.idea/
+.settings/
+.project
+.classpath
+.qodo
+
+# Environment variable files
+.env
+.env.local
+.env.dev
+.env.qa
+.env.prod
+
+# Temp directory
+.temp
+.tmp
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
