@@ -5,6 +5,7 @@ import { User, UserSchema } from '../common/schemas/user.schema';
 
 import { MongooseModule } from '@nestjs/mongoose';
 import { ImageProcessingModule } from '../image-processing/image-processing.module';
+import { S3Module } from '../s3/s3.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ImageProcessingModule } from '../image-processing/image-processing.modu
       },
     ]),
     ImageProcessingModule,
+    S3Module,
   ],
   controllers: [UsersController],
   providers: [UsersService],
