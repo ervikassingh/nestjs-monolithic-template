@@ -37,16 +37,12 @@ import { CreateUserDto, CreateUserResponseDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage, File } from 'multer';
-import { extname } from 'path';
-
-import { ImageProcessingService } from '../image-processing/image-processing.service';
+import { memoryStorage } from 'multer';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly imageProcessingService: ImageProcessingService,
   ) {}
 
   @ApiOperation({
@@ -214,14 +210,7 @@ export class UsersController {
   @Post(':id/profile-image')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads/profile-images',
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-        },
-      }),
+      storage: memoryStorage(),
       fileFilter: (req, file, cb) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
           return cb(
@@ -238,13 +227,8 @@ export class UsersController {
   )
   async uploadProfileImage(
     @Param('id') id: string,
-    @UploadedFile() file: File,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    if (!file) throw new BadRequestException('No file uploaded');
-    const resizedImages = await this.imageProcessingService.resizeAndSave(
-      file.path,
-      file.filename,
-    );
-    return this.usersService.updateProfileImage(id, resizedImages);
+    return this.usersService.uploadProfileImage(id, file);
   }
 }

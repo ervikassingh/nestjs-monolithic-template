@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
 
 import * as sharp from 'sharp';
-import { join } from 'path';
-// import * as fs from 'fs';
+
+export interface ProcessedImage {
+  name: string;
+  buffer: Buffer;
+  mimetype: string;
+}
 
 @Injectable()
 export class ImageProcessingService {
-  async resizeAndSave(filePath: string, fileName: string): Promise<string[]> {
+  async resizeAndProcess(fileBuffer: Buffer, fileName: string, mimetype: string): Promise<ProcessedImage[]> {
     const ext = fileName.split('.').pop();
     const name = fileName.replace(`.${ext}`, '');
 
@@ -15,17 +19,37 @@ export class ImageProcessingService {
       { name: 'medium', width: 500 },
     ];
 
-    const outputPaths: string[] = [];
-    for (const size of sizes) {
-      const outputName = `${name}-${size.name}.${ext}`;
-      const outputPath = join('uploads/profile-images', outputName);
-      await sharp(filePath).resize({ width: size.width }).toFile(outputPath);
-      outputPaths.push(outputPath);
-    }
-    outputPaths.push(filePath);
-
-    // fs.unlinkSync(filePath); // Optionally delete the original file after processing
+    const processedImages: ProcessedImage[] = [];
     
-    return outputPaths;
+    // Process thumbnail
+    const thumbnailBuffer = await sharp(fileBuffer)
+      .resize({ width: 100 })
+      .toBuffer();
+    
+    processedImages.push({
+      name: `${name}-thumbnail.${ext}`,
+      buffer: thumbnailBuffer,
+      mimetype,
+    });
+
+    // Process medium
+    const mediumBuffer = await sharp(fileBuffer)
+      .resize({ width: 500 })
+      .toBuffer();
+    
+    processedImages.push({
+      name: `${name}-medium.${ext}`,
+      buffer: mediumBuffer,
+      mimetype,
+    });
+
+    // Add original
+    processedImages.push({
+      name: fileName,
+      buffer: fileBuffer,
+      mimetype,
+    });
+
+    return processedImages;
   }
 }
